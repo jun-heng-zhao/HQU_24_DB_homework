@@ -33,6 +33,14 @@ public class AgePanel {
             state.setProgress(6);
         } else if (currentAge >= 26 && currentAge <= 35) {
             state.setProgress(7); // 26-35岁职业发展阶段
+        } else if (currentAge >= 36 && currentAge <= 45) {
+            state.setProgress(8); // 36-45岁中年发展期
+        } else if (currentAge >= 46 && currentAge <= 55) {
+            state.setProgress(9); // 46-55岁事业巅峰期
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            state.setProgress(10); // 56-65岁退休准备期
+        } else if (currentAge >= 66) {
+            state.setProgress(11); // 66岁及以上晚年生活期
         }
 
         // 主面板使用 BorderLayout
@@ -112,6 +120,14 @@ public class AgePanel {
             String careerInfo = state.getCurrentCareer() != null ?
                     " - " + state.getCurrentCareer() : " (未选择职业)";
             return "职业发展期：" + currentAge + "岁" + careerInfo;
+        } else if (currentAge >= 36 && currentAge <= 45) {
+            return "中年发展期：" + currentAge + "岁 - " + state.getCurrentCareer();
+        } else if (currentAge >= 46 && currentAge <= 55) {
+            return "事业巅峰期：" + currentAge + "岁 - " + state.getCurrentCareer();
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            return "退休准备期：" + currentAge + "岁";
+        } else if (currentAge >= 66) {
+            return "晚年生活期：" + currentAge + "岁";
         } else {
             return currentAge + "岁";
         }
@@ -227,16 +243,38 @@ public class AgePanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         String panelTitle = "当前行为";
-        if (currentAge >= 26 && currentAge <= 35 && state.getCurrentCareer() != null) {
+        if (currentAge >= 26 && currentAge <= 55 && state.getCurrentCareer() != null) {
             panelTitle += " [" + state.getCurrentCareer() + "]";
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            panelTitle += " [退休准备]";
+        } else if (currentAge >= 66) {
+            panelTitle += " [晚年生活]";
         }
 
         panel.setBorder(BorderFactory.createTitledBorder(panelTitle));
         panel.setPreferredSize(new Dimension(600, 120));
 
         String behaviorText;
-        if (currentAge >= 26 && currentAge <= 35 && state.getCurrentCareer() != null) {
+        if (currentAge >= 26 && currentAge <= 55 && state.getCurrentCareer() != null) {
             behaviorText = String.format("职业发展（%d岁）：\n%s\n\n属性变化：人脉+%d 智力+%d 体质+%d 财富+%d 健康+%d",
+                    currentAge,
+                    behavior.behavior,
+                    behavior.connectionsChange,
+                    behavior.intelligenceChange,
+                    behavior.physiqueChange,
+                    behavior.wealthChange,
+                    behavior.healthChange);
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            behaviorText = String.format("退休准备（%d岁）：\n%s\n\n属性变化：人脉+%d 智力+%d 体质+%d 财富+%d 健康+%d",
+                    currentAge,
+                    behavior.behavior,
+                    behavior.connectionsChange,
+                    behavior.intelligenceChange,
+                    behavior.physiqueChange,
+                    behavior.wealthChange,
+                    behavior.healthChange);
+        } else if (currentAge >= 66) {
+            behaviorText = String.format("晚年生活（%d岁）：\n%s\n\n属性变化：人脉+%d 智力+%d 体质+%d 财富+%d 健康+%d",
                     currentAge,
                     behavior.behavior,
                     behavior.connectionsChange,
@@ -310,11 +348,33 @@ public class AgePanel {
         confirmBtn.addActionListener(e -> {
             // 创建行为信息字符串
             String behaviorInfo;
-            if (state.getCurrentAge() >= 26 && state.getCurrentAge() <= 35 && state.getCurrentCareer() != null) {
+            if (state.getCurrentAge() >= 26 && state.getCurrentAge() <= 55 && state.getCurrentCareer() != null) {
                 behaviorInfo = String.format(
                         "%d岁[%s]: %s （人脉+%d | 智力+%d | 体质+%d | 财富+%d | 健康+%d）",
                         state.getCurrentAge(),
                         state.getCurrentCareer(),
+                        currentBehavior.behavior,
+                        currentBehavior.connectionsChange,
+                        currentBehavior.intelligenceChange,
+                        currentBehavior.physiqueChange,
+                        currentBehavior.wealthChange,
+                        currentBehavior.healthChange
+                );
+            } else if (state.getCurrentAge() >= 56 && state.getCurrentAge() <= 65) {
+                behaviorInfo = String.format(
+                        "%d岁[退休准备]: %s （人脉+%d | 智力+%d | 体质+%d | 财富+%d | 健康+%d）",
+                        state.getCurrentAge(),
+                        currentBehavior.behavior,
+                        currentBehavior.connectionsChange,
+                        currentBehavior.intelligenceChange,
+                        currentBehavior.physiqueChange,
+                        currentBehavior.wealthChange,
+                        currentBehavior.healthChange
+                );
+            } else if (state.getCurrentAge() >= 66) {
+                behaviorInfo = String.format(
+                        "%d岁[晚年生活]: %s （人脉+%d | 智力+%d | 体质+%d | 财富+%d | 健康+%d）",
+                        state.getCurrentAge(),
                         currentBehavior.behavior,
                         currentBehavior.connectionsChange,
                         currentBehavior.intelligenceChange,
@@ -381,16 +441,114 @@ public class AgePanel {
                 throw new SQLException("未选择职业，无法获取26-35岁行为");
             }
             behaviors = behaviorService.load26to35ForCareer(state.getCurrentCareer());
+        } else if (currentAge >= 36 && currentAge <= 45) {
+            // 36-45岁中年发展期
+            if (state.getCurrentCareer() == null) {
+                throw new SQLException("未选择职业，无法获取36-45岁行为");
+            }
+            behaviors = behaviorService.load36to45ForCareer(state.getCurrentCareer());
+        } else if (currentAge >= 46 && currentAge <= 55) {
+            // 46-55岁事业巅峰期
+            if (state.getCurrentCareer() == null) {
+                throw new SQLException("未选择职业，无法获取46-55岁行为");
+            }
+            behaviors = behaviorService.load46to55ForCareer(state.getCurrentCareer());
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            // 56-65岁退休准备期
+            if (state.getCurrentCareer() == null) {
+                // 如果没有职业，使用通用退休行为
+                behaviors = behaviorService.load56to65ForCareer("通用");
+            } else {
+                behaviors = behaviorService.load56to65ForCareer(state.getCurrentCareer());
+            }
+        } else if (currentAge >= 66) {
+            // 66岁及以上晚年生活期
+            behaviors = behaviorService.load66Plus();
         } else {
             throw new SQLException("不支持的年龄阶段: " + currentAge);
         }
 
         if (behaviors.isEmpty()) {
-            return null;
+            // 如果没有找到特定行为，使用默认行为
+            return getDefaultBehavior(currentAge);
         }
 
         int randomIndex = random.nextInt(behaviors.size());
         return behaviors.get(randomIndex);
+    }
+
+    /**
+     * 获取默认行为（当特定行为数据缺失时使用）
+     */
+    private BehaviorService.BehaviorData getDefaultBehavior(int currentAge) {
+        BehaviorService.BehaviorData behavior = new BehaviorService.BehaviorData();
+
+        if (currentAge >= 1 && currentAge <= 5) {
+            behavior.behavior = "健康成长，学习基础技能";
+            behavior.connectionsChange = 1;
+            behavior.intelligenceChange = 2;
+            behavior.physiqueChange = 1;
+            behavior.wealthChange = 0;
+            behavior.healthChange = 1;
+        } else if (currentAge >= 6 && currentAge <= 15) {
+            behavior.behavior = "在学校学习知识，结交朋友";
+            behavior.connectionsChange = 2;
+            behavior.intelligenceChange = 3;
+            behavior.physiqueChange = 1;
+            behavior.wealthChange = 0;
+            behavior.healthChange = 1;
+        } else if (currentAge >= 16 && currentAge <= 25) {
+            behavior.behavior = "努力学习工作，为未来打基础";
+            behavior.connectionsChange = 2;
+            behavior.intelligenceChange = 3;
+            behavior.physiqueChange = 1;
+            behavior.wealthChange = 2;
+            behavior.healthChange = 0;
+        } else if (currentAge >= 26 && currentAge <= 35) {
+            behavior.behavior = "在职业道路上稳步发展";
+            behavior.connectionsChange = 3;
+            behavior.intelligenceChange = 2;
+            behavior.physiqueChange = 0;
+            behavior.wealthChange = 3;
+            behavior.healthChange = 0;
+        } else if (currentAge >= 36 && currentAge <= 45) {
+            behavior.behavior = "事业发展进入关键期";
+            behavior.connectionsChange = 3;
+            behavior.intelligenceChange = 2;
+            behavior.physiqueChange = -1;
+            behavior.wealthChange = 4;
+            behavior.healthChange = -1;
+        } else if (currentAge >= 46 && currentAge <= 55) {
+            behavior.behavior = "事业达到巅峰，经验丰富";
+            behavior.connectionsChange = 3;
+            behavior.intelligenceChange = 2;
+            behavior.physiqueChange = -1;
+            behavior.wealthChange = 4;
+            behavior.healthChange = -1;
+        } else if (currentAge >= 56 && currentAge <= 65) {
+            behavior.behavior = "为退休生活做准备";
+            behavior.connectionsChange = 1;
+            behavior.intelligenceChange = 1;
+            behavior.physiqueChange = 0;
+            behavior.wealthChange = 1;
+            behavior.healthChange = 1;
+        } else if (currentAge >= 66) {
+            behavior.behavior = "享受晚年生活";
+            behavior.connectionsChange = 1;
+            behavior.intelligenceChange = 1;
+            behavior.physiqueChange = 0;
+            behavior.wealthChange = 0;
+            behavior.healthChange = 1;
+        } else {
+            behavior.behavior = "享受生活，积累经验";
+            behavior.connectionsChange = 1;
+            behavior.intelligenceChange = 1;
+            behavior.physiqueChange = 0;
+            behavior.wealthChange = 1;
+            behavior.healthChange = 1;
+        }
+
+        return behavior;
     }
 
     /**
@@ -418,14 +576,39 @@ public class AgePanel {
             }
         } else if (currentAge <= 35) {
             ui.showAgePanel();
+        } else if (currentAge == 36) {
+            // 进入36-45岁中年发展期
+            ui.showAgePanel();
+        } else if (currentAge <= 45) {
+            ui.showAgePanel();
+        } else if (currentAge == 46) {
+            // 进入46-55岁事业巅峰期
+            ui.showAgePanel();
+        } else if (currentAge <= 55) {
+            ui.showAgePanel();
+        } else if (currentAge == 56) {
+            // 进入56-65岁退休准备期
+            ui.showAgePanel();
+        } else if (currentAge <= 65) {
+            ui.showAgePanel();
+        } else if (currentAge == 66) {
+            // 进入66岁及以上晚年生活期
+            ui.showAgePanel();
+        } else if (currentAge <= 80) { // 假设最大年龄为80岁
+            ui.showAgePanel();
         } else {
-            // 26-35岁阶段完成
+            // 人生完成
             JOptionPane.showMessageDialog(ui.getFrame(),
-                    "职业发展阶段已完成！\n" +
-                            "你已经成为一名成功的" + state.getCurrentCareer() + "！\n" +
-                            "接下来将进入人生新阶段...",
-                    "阶段完成", JOptionPane.INFORMATION_MESSAGE);
-            ui.showResultPanel();
+                    "恭喜你完成了精彩的一生！\n" +
+                            "你的人生旅程已经圆满结束。\n\n" +
+                            "最终属性：\n" +
+                            "人脉: " + state.getConnections() + "\n" +
+                            "智力: " + state.getIntelligence() + "\n" +
+                            "体质: " + state.getPhysique() + "\n" +
+                            "财富: " + state.getWealth() + "\n" +
+                            "健康: " + state.getHealth(),
+                    "人生圆满", JOptionPane.INFORMATION_MESSAGE);
+            ui.showFinalResultPanel();
         }
     }
 }

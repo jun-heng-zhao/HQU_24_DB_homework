@@ -109,7 +109,7 @@ public class BehaviorService {
         return out;
     }
 
-    // 查询 26~35 岁（按 career_type）- 确保只有一个定义
+    // 查询 26~35 岁（按 career_type）
     public List<BehaviorData> load26to35ForCareer(String careerType) throws SQLException {
         List<BehaviorData> out = new ArrayList<>();
         String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
@@ -128,6 +128,123 @@ public class BehaviorService {
                     d.healthChange = rs.getInt("health_change");
                     out.add(d);
                 }
+            }
+        }
+        return out;
+    }
+
+    // 查询 36~45 岁（按 career_type）
+    public List<BehaviorData> load36to45ForCareer(String careerType) throws SQLException {
+        List<BehaviorData> out = new ArrayList<>();
+        String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                "FROM age_behaviors WHERE age_group = '36_45' AND background_type = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, careerType);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BehaviorData d = new BehaviorData();
+                    d.id = rs.getInt("behavior_id");
+                    d.behavior = rs.getString("behavior_text");
+                    d.connectionsChange = rs.getInt("connections_change");
+                    d.intelligenceChange = rs.getInt("intelligence_change");
+                    d.physiqueChange = rs.getInt("physique_change");
+                    d.wealthChange = rs.getInt("wealth_change");
+                    d.healthChange = rs.getInt("health_change");
+                    out.add(d);
+                }
+            }
+        }
+        return out;
+    }
+
+    // 查询 46~55 岁（按 career_type）
+    public List<BehaviorData> load46to55ForCareer(String careerType) throws SQLException {
+        List<BehaviorData> out = new ArrayList<>();
+        String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                "FROM age_behaviors WHERE age_group = '46_55' AND background_type = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, careerType);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BehaviorData d = new BehaviorData();
+                    d.id = rs.getInt("behavior_id");
+                    d.behavior = rs.getString("behavior_text");
+                    d.connectionsChange = rs.getInt("connections_change");
+                    d.intelligenceChange = rs.getInt("intelligence_change");
+                    d.physiqueChange = rs.getInt("physique_change");
+                    d.wealthChange = rs.getInt("wealth_change");
+                    d.healthChange = rs.getInt("health_change");
+                    out.add(d);
+                }
+            }
+        }
+        return out;
+    }
+
+    // 查询 56~65 岁（按 career_type，如无特定职业行为则使用通用行为）
+    public List<BehaviorData> load56to65ForCareer(String careerType) throws SQLException {
+        List<BehaviorData> out = new ArrayList<>();
+
+        // 先查询特定职业的行为
+        String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                "FROM age_behaviors WHERE age_group = '56_65' AND background_type = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, careerType);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BehaviorData d = new BehaviorData();
+                    d.id = rs.getInt("behavior_id");
+                    d.behavior = rs.getString("behavior_text");
+                    d.connectionsChange = rs.getInt("connections_change");
+                    d.intelligenceChange = rs.getInt("intelligence_change");
+                    d.physiqueChange = rs.getInt("physique_change");
+                    d.wealthChange = rs.getInt("wealth_change");
+                    d.healthChange = rs.getInt("health_change");
+                    out.add(d);
+                }
+            }
+        }
+
+        // 如果没有找到特定职业行为，使用通用行为
+        if (out.isEmpty()) {
+            sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                    "FROM age_behaviors WHERE age_group = '56_65' AND background_type = '通用'";
+            try (Statement stmt = db.getConnection().createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    BehaviorData d = new BehaviorData();
+                    d.id = rs.getInt("behavior_id");
+                    d.behavior = rs.getString("behavior_text");
+                    d.connectionsChange = rs.getInt("connections_change");
+                    d.intelligenceChange = rs.getInt("intelligence_change");
+                    d.physiqueChange = rs.getInt("physique_change");
+                    d.wealthChange = rs.getInt("wealth_change");
+                    d.healthChange = rs.getInt("health_change");
+                    out.add(d);
+                }
+            }
+        }
+
+        return out;
+    }
+
+    // 查询 66岁及以上（使用通用行为）
+    public List<BehaviorData> load66Plus() throws SQLException {
+        List<BehaviorData> out = new ArrayList<>();
+        String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                "FROM age_behaviors WHERE age_group = '66_plus'";
+        try (Statement stmt = db.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                BehaviorData d = new BehaviorData();
+                d.id = rs.getInt("behavior_id");
+                d.behavior = rs.getString("behavior_text");
+                d.connectionsChange = rs.getInt("connections_change");
+                d.intelligenceChange = rs.getInt("intelligence_change");
+                d.physiqueChange = rs.getInt("physique_change");
+                d.wealthChange = rs.getInt("wealth_change");
+                d.healthChange = rs.getInt("health_change");
+                out.add(d);
             }
         }
         return out;

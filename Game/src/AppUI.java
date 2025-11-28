@@ -117,7 +117,7 @@ public class AppUI {
         }
     }
 
-    // 新增：职业选择面板
+    // 职业选择面板
     public void showCareerPanel() {
         try {
             refreshContent(new CareerPanel(this, db, behaviorService, state).createPanel());
@@ -126,8 +126,6 @@ public class AppUI {
             JOptionPane.showMessageDialog(frame, "加载职业选择面板失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
 
     // 统一的年龄阶段面板
     public void showAgePanel() {
@@ -157,10 +155,20 @@ public class AppUI {
 
     public void showResultPanel() {
         try {
-            state.setProgress(8); // 更新为完成状态
+            state.setProgress(3);
             refreshContent(new ResultPanel(this, state).createPanel());
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    // 最终结果面板
+    public void showFinalResultPanel() {
+        try {
+            refreshContent(new FinalResultPanel(this, state).createPanel());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "加载最终结果面板失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
         }
     }
 
