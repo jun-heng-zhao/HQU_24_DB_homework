@@ -20,7 +20,7 @@ public class SaveLoadService {
     }
 
     // ======================
-    // 保存游戏（需要更新以保存行为历史）
+    // 保存游戏（更新以保存行为历史和职业信息）
     // ======================
     public void saveGame(JFrame frame) {
 
@@ -49,8 +49,8 @@ public class SaveLoadService {
 
             String insertSql = """
                     INSERT INTO player_saves 
-                    (save_name, save_time, progress, current_age, connections, intelligence, physique, wealth, health, background_type, behavior_history) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (save_name, save_time, progress, current_age, connections, intelligence, physique, wealth, health, background_type, career_type, behavior_history) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """;
 
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(insertSql)) {
@@ -64,7 +64,8 @@ public class SaveLoadService {
                 pstmt.setInt(8, state.getWealth());
                 pstmt.setInt(9, state.getHealth());
                 pstmt.setString(10, state.getCurrentBackground());
-                pstmt.setString(11, behaviorHistoryStr);
+                pstmt.setString(11, state.getCurrentCareer()); // 新增职业字段
+                pstmt.setString(12, behaviorHistoryStr);
                 pstmt.executeUpdate();
             }
 
@@ -77,11 +78,11 @@ public class SaveLoadService {
     }
 
     // ======================
-    // 读档（需要更新以加载行为历史）
+    // 读档（更新以加载行为历史和职业信息）
     // ======================
     public void loadGame(JFrame frame) {
         try (Statement stmt = db.getConnection().createStatement()) {
-            String querySavesSql = "SELECT save_name, save_time, progress, current_age, background_type FROM player_saves ORDER BY save_time DESC";
+            String querySavesSql = "SELECT save_name, save_time, progress, current_age, background_type, career_type FROM player_saves ORDER BY save_time DESC";
 
             try (ResultSet rs = stmt.executeQuery(querySavesSql)) {
 
@@ -94,7 +95,9 @@ public class SaveLoadService {
                         case 4 -> "1~5岁（" + rs.getInt("current_age") + "岁）";
                         case 5 -> "6~15岁（" + rs.getInt("current_age") + "岁）";
                         case 6 -> "16~25岁（" + rs.getInt("current_age") + "岁）";
-                        case 7 -> "游戏完成";
+                        case 7 -> "26~35岁（" + rs.getInt("current_age") + "岁）" +
+                                (rs.getString("career_type") != null ? " [" + rs.getString("career_type") + "]" : "");
+                        case 8 -> "游戏完成";
                         default -> "未知进度";
                     };
 
@@ -131,7 +134,7 @@ public class SaveLoadService {
                 // ✔ 读取存档 → 用 set() 方法覆盖
                 // ======================
                 String loadSql = """
-                        SELECT progress, current_age, connections, intelligence, physique, wealth, health, background_type, behavior_history
+                        SELECT progress, current_age, connections, intelligence, physique, wealth, health, background_type, career_type, behavior_history
                         FROM player_saves WHERE save_name = ?
                         """;
 
@@ -152,24 +155,27 @@ public class SaveLoadService {
                             state.setHealth(loadRs.getInt("health"));
 
                             state.setCurrentBackground(loadRs.getString("background_type"));
+                            state.setCurrentCareer(loadRs.getString("career_type")); // 加载职业信息
 
                             // 加载行为历史
                             String behaviorHistoryStr = loadRs.getString("behavior_history");
                             if (behaviorHistoryStr != null && !behaviorHistoryStr.isEmpty()) {
                                 String[] historyArray = behaviorHistoryStr.split(";;");
                                 state.setBehaviorHistory(new java.util.ArrayList<>(java.util.Arrays.asList(historyArray)));
+                            } else {
+                                state.setBehaviorHistory(new java.util.ArrayList<>());
                             }
 
                             // ======================
-                            // 跳转 UI - 修改：使用统一的年龄面板
+                            // 跳转 UI - 更新以支持新的进度阶段
                             // ======================
                             if (ui != null) {
                                 switch (state.getProgress()) {
                                     case 1 -> ui.showBirthplacePanel();
                                     case 2 -> ui.showBackgroundPanel();
                                     case 3 -> ui.showResultPanel();
-                                    case 4, 5, 6 -> ui.showAgePanel(); // 所有年龄阶段使用统一面板
-                                    case 7 -> ui.showResultPanel();
+                                    case 4, 5, 6, 7 -> ui.showAgePanel(); // 所有年龄阶段使用统一面板
+                                    case 8 -> ui.showResultPanel();
                                 }
                             }
 
@@ -264,4 +270,84 @@ public class SaveLoadService {
         }
     }
 
+    // ======================
+    // 新增：检查存档名称是否重复
+    // ======================
+    public boolean isSaveNameExists(String saveName) {
+        try {
+            String checkSql = "SELECT COUNT(*) FROM player_saves WHERE save_name = ?";
+            try (PreparedStatement pstmt = db.getConnection().prepareStatement(checkSql)) {
+                pstmt.setString(1, saveName);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1) > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ======================
+    // 新增：获取所有存档列表（用于其他功能）
+    // ======================
+    public DefaultListModel<String> getAllSaves() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        try (Statement stmt = db.getConnection().createStatement()) {
+            String querySql = "SELECT save_name, save_time, progress FROM player_saves ORDER BY save_time DESC";
+            try (ResultSet rs = stmt.executeQuery(querySql)) {
+                while (rs.next()) {
+                    String item = String.format("%s (创建于: %s)",
+                            rs.getString("save_name"),
+                            rs.getTimestamp("save_time").toString().substring(0, 16));
+                    model.addElement(item);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return model;
+    }
+
+    // ======================
+    // 新增：快速保存（使用默认名称）
+    // ======================
+    public void quickSave(JFrame frame) {
+        String defaultName = "快速存档_" + new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+
+        try {
+            // 将行为历史转换为字符串
+            String behaviorHistoryStr = String.join(";;", state.getBehaviorHistory());
+
+            String insertSql = """
+                    INSERT INTO player_saves 
+                    (save_name, save_time, progress, current_age, connections, intelligence, physique, wealth, health, background_type, career_type, behavior_history) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """;
+
+            try (PreparedStatement pstmt = db.getConnection().prepareStatement(insertSql)) {
+                pstmt.setString(1, defaultName);
+                pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+                pstmt.setInt(3, state.getProgress());
+                pstmt.setInt(4, state.getCurrentAge());
+                pstmt.setInt(5, state.getConnections());
+                pstmt.setInt(6, state.getIntelligence());
+                pstmt.setInt(7, state.getPhysique());
+                pstmt.setInt(8, state.getWealth());
+                pstmt.setInt(9, state.getHealth());
+                pstmt.setString(10, state.getCurrentBackground());
+                pstmt.setString(11, state.getCurrentCareer());
+                pstmt.setString(12, behaviorHistoryStr);
+                pstmt.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(frame, "快速存档成功！\n存档名称：" + defaultName, "成功", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "快速存档失败: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

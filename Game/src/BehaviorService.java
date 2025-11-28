@@ -23,6 +23,15 @@ public class BehaviorService {
         public int healthChange;
     }
 
+    public static class CareerData {
+        public String careerName;
+        public String requiredBackground;
+        public int minIntelligence;
+        public int minConnections;
+        public int minWealth;
+        public String description;
+    }
+
     public BehaviorService(Database db, GameState state) {
         this.db = db;
         this.state = state;
@@ -98,6 +107,51 @@ public class BehaviorService {
             }
         }
         return out;
+    }
+
+    // 查询 26~35 岁（按 career_type）- 确保只有一个定义
+    public List<BehaviorData> load26to35ForCareer(String careerType) throws SQLException {
+        List<BehaviorData> out = new ArrayList<>();
+        String sql = "SELECT behavior_id, behavior_text, connections_change, intelligence_change, physique_change, wealth_change, health_change " +
+                "FROM age_behaviors WHERE age_group = '26_35' AND background_type = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, careerType);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    BehaviorData d = new BehaviorData();
+                    d.id = rs.getInt("behavior_id");
+                    d.behavior = rs.getString("behavior_text");
+                    d.connectionsChange = rs.getInt("connections_change");
+                    d.intelligenceChange = rs.getInt("intelligence_change");
+                    d.physiqueChange = rs.getInt("physique_change");
+                    d.wealthChange = rs.getInt("wealth_change");
+                    d.healthChange = rs.getInt("health_change");
+                    out.add(d);
+                }
+            }
+        }
+        return out;
+    }
+
+    // 获取可选择的职业列表
+    public List<CareerData> loadAvailableCareers() throws SQLException {
+        List<CareerData> careers = new ArrayList<>();
+        String sql = "SELECT career_name, required_background, min_intelligence, min_connections, min_wealth, description FROM career_paths";
+
+        try (Statement stmt = db.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                CareerData career = new CareerData();
+                career.careerName = rs.getString("career_name");
+                career.requiredBackground = rs.getString("required_background");
+                career.minIntelligence = rs.getInt("min_intelligence");
+                career.minConnections = rs.getInt("min_connections");
+                career.minWealth = rs.getInt("min_wealth");
+                career.description = rs.getString("description");
+                careers.add(career);
+            }
+        }
+        return careers;
     }
 
     // 以下方法用于省份 / 背景的自由/随机选择

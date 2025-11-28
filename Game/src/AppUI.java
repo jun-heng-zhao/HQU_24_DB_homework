@@ -13,8 +13,6 @@ public class AppUI {
     private JFrame frame;
     private JPanel contentPanel;
 
-    // 移除右侧属性栏的标签，因为现在属性显示在左上角
-
     private boolean fullscreen = false;
     private Rectangle windowBounds;
 
@@ -28,54 +26,43 @@ public class AppUI {
     }
 
     private void initGUI() {
-
-        // =============================
-        // 基础 Frame 设置（启用 FlatLaf 自定义标题栏）
-        // =============================
         frame = new JFrame("人生模拟器 - 全阶段成长");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1000, 650);
         frame.setLocationRelativeTo(null);
-        frame.setUndecorated(false);   // 使用 FlatLaf 自绘标题栏
+        frame.setUndecorated(false);
         frame.getRootPane().putClientProperty("flatlaf.useWindowDecorations", true);
         frame.setLayout(new BorderLayout());
 
-        // =============================
-        // 顶部按钮（存档、读档 + 删除存档 + 全屏按钮）
-        // =============================
+        // 顶部按钮面板
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
         JButton saveBtn = new JButton("存档");
         JButton loadBtn = new JButton("读档");
-        JButton deleteBtn = new JButton("删除存档");  // 新增删除存档按钮
+        JButton deleteBtn = new JButton("删除存档");
         JButton fullBtn = new JButton("⛶");
 
         saveBtn.addActionListener(e -> saveLoadService.saveGame(frame));
         loadBtn.addActionListener(e -> saveLoadService.loadGame(frame));
-        deleteBtn.addActionListener(e -> saveLoadService.deleteSave(frame));  // 绑定删除存档功能
+        deleteBtn.addActionListener(e -> saveLoadService.deleteSave(frame));
         fullBtn.addActionListener(e -> toggleFullscreen());
 
-        // 全屏按钮样式
         fullBtn.putClientProperty("JButton.buttonType", "toolBar");
         fullBtn.setFocusable(false);
         fullBtn.setPreferredSize(new Dimension(36, 28));
 
         topPanel.add(saveBtn);
         topPanel.add(loadBtn);
-        topPanel.add(deleteBtn);  // 添加删除存档按钮
+        topPanel.add(deleteBtn);
         topPanel.add(fullBtn);
 
         frame.add(topPanel, BorderLayout.NORTH);
 
-        // =============================
-        // 内容区 - 移除了右侧属性栏
-        // =============================
+        // 内容区
         contentPanel = new JPanel();
         frame.add(contentPanel, BorderLayout.CENTER);
 
-        // =============================
-        // 注册 F11 作为全屏快捷键
-        // =============================
+        // 注册 F11 全屏快捷键
         frame.getRootPane().registerKeyboardAction(
                 e -> toggleFullscreen(),
                 KeyStroke.getKeyStroke("F11"),
@@ -85,9 +72,6 @@ public class AppUI {
         frame.setVisible(true);
     }
 
-    // =============================
-    // 全屏/退出全屏 逻辑
-    // =============================
     private void toggleFullscreen() {
         if (!fullscreen) {
             windowBounds = frame.getBounds();
@@ -104,9 +88,6 @@ public class AppUI {
         fullscreen = !fullscreen;
     }
 
-    // =============================
-    // 内容区更新
-    // =============================
     private void refreshContent(JPanel panel) {
         contentPanel.removeAll();
         contentPanel.add(panel);
@@ -136,16 +117,29 @@ public class AppUI {
         }
     }
 
+    // 新增：职业选择面板
+    public void showCareerPanel() {
+        try {
+            refreshContent(new CareerPanel(this, db, behaviorService, state).createPanel());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "加载职业选择面板失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+
     // 统一的年龄阶段面板
     public void showAgePanel() {
         try {
             refreshContent(new AgePanel(this, db, behaviorService, state).createPanel());
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "加载年龄面板失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // 保持向后兼容的旧方法（可以删除，但为了安全暂时保留）
+    // 保持向后兼容的旧方法
     @Deprecated
     public void showChildhoodPanel() {
         showAgePanel();
@@ -163,7 +157,7 @@ public class AppUI {
 
     public void showResultPanel() {
         try {
-            state.setProgress(7); // 设置为完成状态
+            state.setProgress(8); // 更新为完成状态
             refreshContent(new ResultPanel(this, state).createPanel());
         } catch (Exception ex) {
             ex.printStackTrace();
