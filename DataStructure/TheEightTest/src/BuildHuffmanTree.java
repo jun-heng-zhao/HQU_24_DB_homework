@@ -10,8 +10,8 @@ public class BuildHuffmanTree {
         }
 
         class node {
-            int weight;
-            StaticTernaryHuffmanTree treenode;
+            final int weight;
+            final StaticTernaryHuffmanTree treenode;
 
             node(int value, int weight) {
                 this.weight = weight;
@@ -39,7 +39,7 @@ public class BuildHuffmanTree {
         while (list.size() > 1) {
             int min1 = -1, min2 = -1;
 
-            // 找最小与次小
+            // 找最小于次小
             for (int i = 0; i < list.size(); i++) {
                 if (min1 == -1 || list.get(i).weight < list.get(min1).weight) {
                     min2 = min1;
@@ -62,7 +62,7 @@ public class BuildHuffmanTree {
             list.add(new node(a, b));
         }
 
-        return list.get(0).treenode;
+        return list.getFirst().treenode;
     }
 
 }

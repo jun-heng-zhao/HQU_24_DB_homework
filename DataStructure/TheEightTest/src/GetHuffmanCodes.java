@@ -42,7 +42,7 @@ public class GetHuffmanCodes {
         // 叶子节点
         if (node.LeftSon == null && node.RightSon == null) {
             // 单节点情况处理（防止 code = ""）
-            codeMap.put(node.data, code.length() == 0 ? "0" : code);
+            codeMap.put(node.data, code.isEmpty() ? "0" : code);
             return;
         }
 

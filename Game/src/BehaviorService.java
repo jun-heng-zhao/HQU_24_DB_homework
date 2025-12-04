@@ -321,4 +321,5 @@ public class BehaviorService {
         if (count <= 0) return -1;
         return random.nextInt(count) + 1;
     }
+
 }

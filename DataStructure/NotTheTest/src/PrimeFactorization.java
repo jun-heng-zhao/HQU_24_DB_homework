@@ -3,7 +3,7 @@ import java.util.Scanner;
 import static java.lang.Math.sqrt;
 
 public class PrimeFactorization {
-    public static void main(String[] args) {
+    static void main() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Int put two number to get the max");
         int end = sc.nextInt();

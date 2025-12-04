@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class AppUI {
 
@@ -171,7 +173,6 @@ public class AppUI {
             JOptionPane.showMessageDialog(frame, "加载最终结果面板失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     public JFrame getFrame() {
         return frame;
     }
