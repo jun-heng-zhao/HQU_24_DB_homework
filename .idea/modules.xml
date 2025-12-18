@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Codes.iml" filepath="$PROJECT_DIR$/Codes.iml" />
-      <module fileurl="file://$PROJECT_DIR$/DataStructure/DataStructure.iml" filepath="$PROJECT_DIR$/DataStructure/DataStructure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DataStructure/Endtest/DataStructure.iml" filepath="$PROJECT_DIR$/DataStructure/Endtest/DataStructure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DataStructure/Endtest/Endtest.iml" filepath="$PROJECT_DIR$/DataStructure/Endtest/Endtest.iml" />
       <module fileurl="file://$PROJECT_DIR$/Game/Game.iml" filepath="$PROJECT_DIR$/Game/Game.iml" />
       <module fileurl="file://$PROJECT_DIR$/DataStructure/NotTheTest/NotTheTest.iml" filepath="$PROJECT_DIR$/DataStructure/NotTheTest/NotTheTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/DataStructure/TheEightTest/TheEightTest.iml" filepath="$PROJECT_DIR$/DataStructure/TheEightTest/TheEightTest.iml" />
