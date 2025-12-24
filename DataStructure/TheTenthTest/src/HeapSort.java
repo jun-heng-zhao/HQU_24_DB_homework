@@ -58,10 +58,8 @@ class HeapSorter {
     public void heapSort(int[] arr) {
         int n = arr.length;
 
-
         MaxHeapBuilder builder = new MaxHeapBuilder();
         builder.buildMaxHeap(arr);
-
 
         for (int i = n - 1; i > 0; i--) {
             HeapUtils.swap(arr, 0, i);
@@ -75,7 +73,7 @@ class HeapSorter {
 
 // 4. 主程序
 public class HeapSort {
-    static void main() {
+    public static void main(String[] args) {  // 这是主要问题：main方法缺少参数
         // 创建随机数组
         RandomArrayGenerator generator = new RandomArrayGenerator();
         int[] arr = generator.generateRandomArray(10);
