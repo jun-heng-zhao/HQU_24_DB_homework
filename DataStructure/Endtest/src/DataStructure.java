@@ -29,9 +29,9 @@ class RandomArrayUtils {
     /**
      * 生成指定范围和长度的随机整数数组
      *
-     * @param size  数组大小
-     * @param min   最小值（包含）
-     * @param max   最大值（包含）
+     * @param size 数组大小
+     * @param min  最小值（包含）
+     * @param max  最大值（包含）
      * @return 随机整数数组
      */
     public static int[] generateRandomArray(int size, int min, int max) {
@@ -52,9 +52,9 @@ class RandomArrayUtils {
     /**
      * 生成已排序的随机数组
      *
-     * @param size  数组大小
-     * @param min   最小值（包含）
-     * @param max   最大值（包含）
+     * @param size 数组大小
+     * @param min  最小值（包含）
+     * @param max  最大值（包含）
      * @return 已排序的随机整数数组
      */
     public static int[] generateSortedRandomArray(int size, int min, int max) {
@@ -66,9 +66,9 @@ class RandomArrayUtils {
     /**
      * 生成用于二叉排序树的随机数组（无重复值）
      *
-     * @param size  数组大小
-     * @param min   最小值（包含）
-     * @param max   最大值（包含）
+     * @param size 数组大小
+     * @param min  最小值（包含）
+     * @param max  最大值（包含）
      * @return 无重复值的随机整数数组
      */
     public static int[] generateBSTArray(int size, int min, int max) {
