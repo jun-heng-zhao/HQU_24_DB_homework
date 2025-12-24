@@ -73,7 +73,7 @@ class HeapSorter {
 
 // 4. 主程序
 public class HeapSort {
-    public static void main(String[] args) {  // 这是主要问题：main方法缺少参数
+    public static void main(String[] args) {
         // 创建随机数组
         RandomArrayGenerator generator = new RandomArrayGenerator();
         int[] arr = generator.generateRandomArray(10);
